@@ -4,19 +4,24 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="rftg", # Replace with your own username
-    version="0.0.1",
+    name="rftg",
+    version="0.0.2",
     author="Damien Carol",
     author_email="damien.carol@gmail.com",
-    description="A small example package",
+    description="AI research project about Race for the Galaxy board game",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/damiencarol/rftg",
     packages=setuptools.find_packages(),
     classifiers=[
+        "Development Status :: 4 - Beta",
+        "Programming Language :: Python",
         "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: MIT License",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
         "Operating System :: OS Independent",
     ],
-    python_requires='>=3.6',
+    python_requires=">=3.6",
 )
