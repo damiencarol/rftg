@@ -79,3 +79,13 @@ def load_file(file):
             card = load_one(lines)
             cards[card.name] = card
     return cards
+
+
+def build_base_set_1st_edition(card_types):
+    cards = list()
+    for name in card_types:
+        card_type = card_types[name]
+        if "0" in card_type.expansion and "PROMO" not in card_type.flags:
+            for _ in range(card_type.expansion["0"]):
+                cards.append({"type": card_type})
+    return cards

@@ -1,5 +1,11 @@
 import pytest
-from rftg.card import load_file, load_one, TYPE_DEVELOPMENT, TYPE_WORLD
+from rftg.card import (
+    load_file,
+    load_one,
+    TYPE_DEVELOPMENT,
+    TYPE_WORLD,
+    build_base_set_1st_edition,
+)
 
 
 def test_load_one():
@@ -70,18 +76,15 @@ def test_name(name, vp):
 
 def test_build_base_set_1st_edition():
     CARD_TYPES = load_file("cards.txt")
-    cards = list()
-    for name in CARD_TYPES:
-        card_type = CARD_TYPES[name]
-        if "0" in card_type.expansion and "PROMO" not in card_type.flags:
-            for _ in range(card_type.expansion["0"]):
-                cards.append({"type": card_type})
+    cards = build_base_set_1st_edition(CARD_TYPES)
 
     nb_base = 0
     nb_military_worlds = 0
     nb_no_military_worlds = 0
     nb_dev_6 = 0
     nb_dev_no_6 = 0
+    nb_military_worlds_all = 0
+    nb_worlds_windfall = 0
     for card in cards:
         card_type = card["type"]
         if "START" in card_type.flags:
@@ -104,9 +107,19 @@ def test_build_base_set_1st_edition():
             ):
                 nb_dev_no_6 = nb_dev_no_6 + 1
 
+        if (card_type.type == TYPE_WORLD) and ("MILITARY" in card_type.flags):
+            nb_military_worlds_all = nb_military_worlds_all + 1
+
+        if (card_type.type == TYPE_WORLD) and ("WINDFALL" in card_type.flags):
+            nb_worlds_windfall = nb_worlds_windfall + 1
+
     assert 5 == nb_base
     assert 22 == nb_military_worlds
     # assert 37 == nb_no_military_worlds
     assert 12 == nb_dev_6
     assert 38 == nb_dev_no_6
+
+    assert 23 == nb_military_worlds_all
+
+    assert 25 == nb_worlds_windfall
     # assert 114 == len(cards)
