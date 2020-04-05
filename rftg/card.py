@@ -1,11 +1,16 @@
+TYPE_WORLD = 1
+TYPE_DEVELOPMENT = 2
+
+
 class Card:
-    def __init__(self, name, type, cost, vp, expansion, expansion_number):
+    def __init__(self, name, type, cost, vp, expansion, flags, extra_victory):
         self.name = name
         self.type = type
         self.cost = cost
         self.vp = vp
         self.expansion = expansion
-        self.expansion_number = expansion_number
+        self.flags = flags
+        self.extra_victory = extra_victory
 
 
 def load_one(lines):
@@ -24,25 +29,32 @@ def load_one(lines):
 # V:value:type:name
 #   Extra victory points for 6-cost developments
     """
-    card = {}
+    card = {"flags": [], "extra_victory": []}
     for line in lines:
         if "N" == line[:1]:
             card["name"] = line[2:].strip()
         elif "T" == line.split(":")[0]:
-            card["type"] = line.split(":")[1]
+            card["type"] = int(line.split(":")[1])
             card["cost"] = int(line.split(":")[2])
             card["vp"] = int(line.split(":")[3])
         elif "E" == line[:1]:
-            exp_line = line[2:]
-            card["expansion"] = exp_line.split(":")[0]
-            card["expansion_number"] = exp_line.split(":")[1]
+            card["expansion"] = dict()
+            exp_lines = line[2:].split("@")
+            for exp_line in exp_lines:
+                card["expansion"][exp_line.split(":")[0]] = int(exp_line.split(":")[1])
+        elif "F" == line[:1]:
+            for item in line[2:].split("|"):
+                card["flags"].append(item.strip())
+        elif "V" == line[:1]:
+            card["extra_victory"].append(line[2:])
     return Card(
         card["name"],
         card["type"],
         card["cost"],
         card["vp"],
         card["expansion"],
-        card["expansion_number"],
+        card["flags"],
+        card["extra_victory"],
     )
 
 
