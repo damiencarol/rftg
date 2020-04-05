@@ -1,5 +1,5 @@
 import pytest
-from rftg.card import load_file
+from pyrftg.card import load_file
 
 cards = load_file("cards.txt")
 
