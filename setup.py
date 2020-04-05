@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="rftg",
-    version="0.0.3",
+    version="0.0.4",
     author="Damien Carol",
     author_email="damien.carol@gmail.com",
     description="AI research project about Race for the Galaxy board game",

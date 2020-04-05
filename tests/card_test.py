@@ -81,6 +81,7 @@ def test_build_base_set_1st_edition():
     nb_military_worlds = 0
     nb_no_military_worlds = 0
     nb_dev_6 = 0
+    nb_dev_no_6 = 0
     for card in cards:
         card_type = card["type"]
         if "START" in card_type.flags:
@@ -90,11 +91,22 @@ def test_build_base_set_1st_edition():
                 nb_military_worlds = nb_military_worlds + 1
             if ("MILITARY" not in card_type.flags) and (card_type.type == TYPE_WORLD):
                 nb_no_military_worlds = nb_no_military_worlds + 1
-            if (card_type.cost == 6) and (card_type.type == TYPE_DEVELOPMENT) and (len(card_type.extra_victory)>0):
+            if (
+                (card_type.cost == 6)
+                and (card_type.type == TYPE_DEVELOPMENT)
+                and (len(card_type.extra_victory) > 0)
+            ):
                 nb_dev_6 = nb_dev_6 + 1
+            if (
+                (card_type.cost < 6)
+                and (card_type.type == TYPE_DEVELOPMENT)
+                and (len(card_type.extra_victory) == 0)
+            ):
+                nb_dev_no_6 = nb_dev_no_6 + 1
 
     assert 5 == nb_base
     assert 22 == nb_military_worlds
-    #assert 37 == nb_no_military_worlds
+    # assert 37 == nb_no_military_worlds
     assert 12 == nb_dev_6
-    #assert 114 == len(cards)
+    assert 38 == nb_dev_no_6
+    # assert 114 == len(cards)
