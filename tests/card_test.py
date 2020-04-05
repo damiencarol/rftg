@@ -4,6 +4,7 @@ from rftg.card import (
     load_one,
     TYPE_DEVELOPMENT,
     TYPE_WORLD,
+    GOODTYPE_NOVELTY,
     build_base_set_1st_edition,
 )
 
@@ -53,10 +54,21 @@ def test_load_one_with_extra_victory():
     assert len(res.extra_victory) > 0
 
 
-@pytest.mark.parametrize("name", ["Galactic Survey: SETI"])
-def test_name(name):
-    CARD_TYPES = load_file("cards.txt")
-    assert name in CARD_TYPES.keys()
+def test_load_one_with_produce():
+    lines = [
+        "N:New Vinland",
+        "T:1:2:1",
+        "E@0:1",
+        "G:NOVELTY",
+        "P:4:CONSUME_ANY | GET_2_CARD:1:1",
+        "P:5:PRODUCE:0:0",
+    ]
+    res = load_one(lines)
+    assert TYPE_WORLD == res.type
+    assert len(res.powers) == 2
+    assert GOODTYPE_NOVELTY == res.goodtype
+    assert "5" in res.powers
+    assert len(res.powers["5"]) == 1
 
 
 @pytest.mark.parametrize(
@@ -66,6 +78,7 @@ def test_name(name):
         ("Contact Specialist", 1),
         ("Pan-Galactic League", 0),
         ("Comet Zone", 2),
+        ("Galactic Survey: SETI", 0),
     ],
 )
 def test_name(name, vp):
@@ -85,6 +98,8 @@ def test_build_base_set_1st_edition():
     nb_dev_no_6 = 0
     nb_military_worlds_all = 0
     nb_worlds_windfall = 0
+    nb_worlds_produce = 0
+    nb_worlds_produce_novelty = 0
     for card in cards:
         card_type = card["type"]
         if "START" in card_type.flags:
@@ -113,6 +128,11 @@ def test_build_base_set_1st_edition():
         if (card_type.type == TYPE_WORLD) and ("WINDFALL" in card_type.flags):
             nb_worlds_windfall = nb_worlds_windfall + 1
 
+        if (card_type.type == TYPE_WORLD) and (len(card_type.powers)>0) and (card_type.goodtype in [GOODTYPE_NOVELTY, "RARE", "GENE", "ALIEN"]) and ("WINDFALL" not in card_type.flags):
+            if card_type.goodtype == GOODTYPE_NOVELTY:
+                nb_worlds_produce_novelty = nb_worlds_produce_novelty + 1
+            nb_worlds_produce = nb_worlds_produce + 1
+
     assert 5 == nb_base
     assert 22 == nb_military_worlds
     # assert 37 == nb_no_military_worlds
@@ -122,4 +142,6 @@ def test_build_base_set_1st_edition():
     assert 23 == nb_military_worlds_all
 
     assert 25 == nb_worlds_windfall
+    assert 21 == nb_worlds_produce
+    assert 9 == nb_worlds_produce_novelty
     # assert 114 == len(cards)

@@ -1,15 +1,17 @@
 TYPE_WORLD = 1
 TYPE_DEVELOPMENT = 2
-
+GOODTYPE_NOVELTY = "NOVELTY"
 
 class Card:
-    def __init__(self, name, type, cost, vp, expansion, flags, extra_victory):
+    def __init__(self, name, type, cost, vp, expansion, goodtype, flags, powers, extra_victory):
         self.name = name
         self.type = type
         self.cost = cost
         self.vp = vp
         self.expansion = expansion
+        self.goodtype = goodtype
         self.flags = flags
+        self.powers = powers
         self.extra_victory = extra_victory
 
 
@@ -30,6 +32,8 @@ def load_one(lines):
 #   Extra victory points for 6-cost developments
     """
     card = {"flags": [], "extra_victory": []}
+    goodtype = None
+    powers = dict()
     for line in lines:
         if "N" == line[:1]:
             card["name"] = line[2:].strip()
@@ -42,9 +46,17 @@ def load_one(lines):
             exp_lines = line[2:].split("@")
             for exp_line in exp_lines:
                 card["expansion"][exp_line.split(":")[0]] = int(exp_line.split(":")[1])
+        elif "G" == line[:1]:
+            goodtype = line[2:]
         elif "F" == line[:1]:
             for item in line[2:].split("|"):
                 card["flags"].append(item.strip())
+        elif "P" == line[:1]:
+            power_line = line[2:]
+            power_step = power_line[:1]
+            if (power_step not in powers):
+                powers[power_step] = list()
+            powers[power_step].append(power_line[2])
         elif "V" == line[:1]:
             card["extra_victory"].append(line[2:])
     return Card(
@@ -53,7 +65,9 @@ def load_one(lines):
         card["cost"],
         card["vp"],
         card["expansion"],
+        goodtype,
         card["flags"],
+        powers,
         card["extra_victory"],
     )
 
