@@ -1,6 +1,10 @@
 TYPE_WORLD = 1
 TYPE_DEVELOPMENT = 2
+
 GOODTYPE_NOVELTY = "NOVELTY"
+GOODTYPE_RARE = "RARE"
+GOODTYPE_GENE = "GENE"
+GOODTYPE_ALIEN = "ALIEN"
 
 class Card:
     def __init__(self, name, type, cost, vp, expansion, goodtype, flags, powers, extra_victory):
