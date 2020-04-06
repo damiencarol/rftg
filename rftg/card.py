@@ -7,7 +7,7 @@ GOODTYPE_GENE = "GENE"
 GOODTYPE_ALIEN = "ALIEN"
 
 
-class Card:
+class CardType:
     def __init__(
         self, name, type, cost, vp, expansion, goodtype, flags, powers, extra_victory
     ):
@@ -70,7 +70,7 @@ def load_one(lines):
             powers[power_step].append(power_line[2])
         elif "V" == line[:1]:
             extra_victory.append(line[2:])
-    return Card(
+    return CardType(
         name,
         card["type"],
         cost,
@@ -113,3 +113,13 @@ def build_base_set_1st_edition(card_types):
             for _ in range(card_type.expansion["0"]):
                 cards.append({"type": card_type})
     return cards
+
+
+def get_subset(flag, cards):
+    ret = list()
+    for card in cards:
+        if flag in card["type"].flags:
+            ret.append(card)
+    for card in ret:
+        cards.remove(card)
+    return ret

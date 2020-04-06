@@ -9,6 +9,7 @@ from rftg.card import (
     GOODTYPE_GENE,
     GOODTYPE_ALIEN,
     build_base_set_1st_edition,
+    get_subset,
 )
 
 
@@ -123,6 +124,8 @@ def test_build_base_set_1st_edition():
     nb_worlds_produce[GOODTYPE_GENE] = 0
     nb_worlds_produce[GOODTYPE_ALIEN] = 0
 
+    nb_starts = 0
+
     nb_cost = dict()
     for i in range(8):
         nb_cost[i] = list()
@@ -171,6 +174,9 @@ def test_build_base_set_1st_edition():
         if "MILITARY" not in card_type.flags:
             nb_cost[card_type.cost].append(card)
 
+        if "START" in card_type.flags:
+            nb_starts = nb_starts + 1
+
     # for c in nb_cost[1]:
     #    print(f" {c['type'].name} :\t\t\t {c['type'].type} ")
 
@@ -207,3 +213,13 @@ def test_build_base_set_1st_edition():
     assert len(nb_cost[6]) == 14
 
     assert 114 == len(cards)
+
+    assert nb_starts == 5
+
+
+def test_get_subset():
+    CARD_TYPES = load_file("cards.txt")
+    cards = build_base_set_1st_edition(CARD_TYPES)
+    starts = get_subset("START", cards)
+    assert len(cards) == 109
+    assert len(starts) == 5
