@@ -74,20 +74,26 @@ def test_load_one_with_produce():
     assert len(res.powers["5"]) == 1
 
 
-@pytest.mark.parametrize(
-    "name, vp",
-    [
-        ("Space Marines", 1),
-        ("Contact Specialist", 1),
-        ("Pan-Galactic League", 0),
-        ("Comet Zone", 2),
-        ("Galactic Survey: SETI", 0),
-    ],
-)
-def test_name(name, vp):
+def test_load_file():
     CARD_TYPES = load_file("cards.txt")
-    assert name in CARD_TYPES.keys()
-    assert CARD_TYPES[name].vp == vp
+    assert len(CARD_TYPES) == 280
+
+
+def test_gambling_world():
+    lines = [
+        "N:Gambling World",
+        "T:1:1:1",
+        "E@0:1@2:-1",
+        "P:4:CONSUME_ANY | GET_VP:1:1",
+        "P:4:DRAW_LUCKY:0:0",
+    ]
+    res = load_one(lines)
+    assert TYPE_WORLD == res.type
+    assert len(res.expansion) == 2
+    assert "0" in res.expansion
+    assert res.expansion["0"] == 1
+    assert "2" in res.expansion
+    assert res.expansion["2"] == -1
 
 
 def test_build_base_set_1st_edition():
@@ -100,6 +106,10 @@ def test_build_base_set_1st_edition():
     nb_dev_6 = 0
     nb_dev_no_6 = 0
     nb_military_worlds_all = 0
+    nb_military_worlds = dict()
+    nb_military_worlds = dict()
+    for i in range(8):
+        nb_military_worlds[i] = list()
     nb_worlds_windfall_total = 0
     nb_worlds_windfall = dict()
     nb_worlds_windfall[GOODTYPE_NOVELTY] = 0
@@ -115,14 +125,12 @@ def test_build_base_set_1st_edition():
 
     nb_cost = dict()
     for i in range(8):
-        nb_cost[i] = list() 
+        nb_cost[i] = list()
     for card in cards:
         card_type = card["type"]
         if "START" in card_type.flags:
             nb_base = nb_base + 1
         else:
-            if ("MILITARY" in card_type.flags) and (card_type.type == TYPE_WORLD):
-                nb_military_worlds = nb_military_worlds + 1
             if ("MILITARY" not in card_type.flags) and (card_type.type == TYPE_WORLD):
                 nb_no_military_worlds = nb_no_military_worlds + 1
             if (
@@ -140,29 +148,43 @@ def test_build_base_set_1st_edition():
 
         if (card_type.type == TYPE_WORLD) and ("MILITARY" in card_type.flags):
             nb_military_worlds_all = nb_military_worlds_all + 1
+            nb_military_worlds[card_type.cost].append(card)
 
         if (card_type.type == TYPE_WORLD) and ("WINDFALL" in card_type.flags):
-            nb_worlds_windfall[card_type.goodtype] = nb_worlds_windfall[card_type.goodtype] + 1
+            nb_worlds_windfall[card_type.goodtype] = (
+                nb_worlds_windfall[card_type.goodtype] + 1
+            )
             nb_worlds_windfall_total = nb_worlds_windfall_total + 1
 
-        if (card_type.type == TYPE_WORLD) and (len(card_type.powers)>0) and (card_type.goodtype in [GOODTYPE_NOVELTY, "RARE", "GENE", "ALIEN"]) and ("WINDFALL" not in card_type.flags):
+        if (
+            (card_type.type == TYPE_WORLD)
+            and (len(card_type.powers) > 0)
+            and (card_type.goodtype in [GOODTYPE_NOVELTY, "RARE", "GENE", "ALIEN"])
+            and ("WINDFALL" not in card_type.flags)
+        ):
             if card_type.goodtype != "ANY":
-                nb_worlds_produce[card_type.goodtype] = nb_worlds_produce[card_type.goodtype] + 1
+                nb_worlds_produce[card_type.goodtype] = (
+                    nb_worlds_produce[card_type.goodtype] + 1
+                )
             nb_worlds_produce_total = nb_worlds_produce_total + 1
-        
+
         if "MILITARY" not in card_type.flags:
             nb_cost[card_type.cost].append(card)
-    
-    for c in nb_cost[6]:
-        print(f" {c['type'].name} :\t\t\t {c['type'].type} ")
+
+    # for c in nb_cost[1]:
+    #    print(f" {c['type'].name} :\t\t\t {c['type'].type} ")
 
     assert 5 == nb_base
-    assert 22 == nb_military_worlds
+    # assert 22 == len(nb_military_worlds)
     # assert 37 == nb_no_military_worlds
     assert 12 == nb_dev_6
     assert 38 == nb_dev_no_6
 
     assert 23 == nb_military_worlds_all
+    assert len(nb_military_worlds[1]) == 6
+    assert len(nb_military_worlds[2]) == 7
+    assert len(nb_military_worlds[3]) == 3
+    assert len(nb_military_worlds[4]) == 2
 
     assert 25 == nb_worlds_windfall_total
     assert 5 == nb_worlds_windfall[GOODTYPE_NOVELTY]
@@ -177,10 +199,11 @@ def test_build_base_set_1st_edition():
     assert 2 == nb_worlds_produce[GOODTYPE_ALIEN]
 
     assert len(nb_cost[0]) == 2
-    #assert len(nb_cost[1]) == 18
+    assert len(nb_cost[1]) == 18
     assert len(nb_cost[2]) == 23
     assert len(nb_cost[3]) == 14
     assert len(nb_cost[4]) == 13
     assert len(nb_cost[5]) == 7
     assert len(nb_cost[6]) == 14
-    #assert 114 == len(cards)
+
+    assert 114 == len(cards)

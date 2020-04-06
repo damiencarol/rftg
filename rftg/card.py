@@ -6,8 +6,11 @@ GOODTYPE_RARE = "RARE"
 GOODTYPE_GENE = "GENE"
 GOODTYPE_ALIEN = "ALIEN"
 
+
 class Card:
-    def __init__(self, name, type, cost, vp, expansion, goodtype, flags, powers, extra_victory):
+    def __init__(
+        self, name, type, cost, vp, expansion, goodtype, flags, powers, extra_victory
+    ):
         self.name = name
         self.type = type
         self.cost = cost
@@ -35,49 +38,53 @@ def load_one(lines):
 # V:value:type:name
 #   Extra victory points for 6-cost developments
     """
-    card = {"flags": [], "extra_victory": []}
+    card = dict()
+    name = "none"
+    cost = 0
+    expansion = dict()
     goodtype = None
+    flags = list()
     powers = dict()
+    extra_victory = list()
     for line in lines:
         if "N" == line[:1]:
-            card["name"] = line[2:].strip()
+            name = line[2:].strip()
         elif "T" == line.split(":")[0]:
             card["type"] = int(line.split(":")[1])
-            card["cost"] = int(line.split(":")[2])
+            cost = int(line.split(":")[2])
             card["vp"] = int(line.split(":")[3])
         elif "E" == line[:1]:
-            card["expansion"] = dict()
             exp_lines = line[2:].split("@")
             for exp_line in exp_lines:
-                card["expansion"][exp_line.split(":")[0]] = int(exp_line.split(":")[1])
+                expansion[exp_line.split(":")[0]] = int(exp_line.split(":")[1])
         elif "G" == line[:1]:
             goodtype = line[2:]
         elif "F" == line[:1]:
             for item in line[2:].split("|"):
-                card["flags"].append(item.strip())
+                flags.append(item.strip())
         elif "P" == line[:1]:
             power_line = line[2:]
             power_step = power_line[:1]
-            if (power_step not in powers):
+            if power_step not in powers:
                 powers[power_step] = list()
             powers[power_step].append(power_line[2])
         elif "V" == line[:1]:
-            card["extra_victory"].append(line[2:])
+            extra_victory.append(line[2:])
     return Card(
-        card["name"],
+        name,
         card["type"],
-        card["cost"],
+        cost,
         card["vp"],
-        card["expansion"],
+        expansion,
         goodtype,
-        card["flags"],
+        flags,
         powers,
-        card["extra_victory"],
+        extra_victory,
     )
 
 
 def load_file(file):
-    cards = dict()
+    cards = list()
 
     with open(file) as card_file:
         lines = list()
@@ -88,21 +95,20 @@ def load_file(file):
                 # manage previous card
                 if lines is not None and len(lines) > 0:
                     card = load_one(lines)
-                    cards[card.name] = card
+                    cards.append(card)
                 lines = list()
             else:
                 lines.append(line.strip())
         # manage previous card
         if lines is not None and len(lines) > 0:
             card = load_one(lines)
-            cards[card.name] = card
+            cards.append(card)
     return cards
 
 
 def build_base_set_1st_edition(card_types):
     cards = list()
-    for name in card_types:
-        card_type = card_types[name]
+    for card_type in card_types:
         if "0" in card_type.expansion and "PROMO" not in card_type.flags:
             for _ in range(card_type.expansion["0"]):
                 cards.append({"type": card_type})
