@@ -17,7 +17,7 @@ class CardType:
         self.vp = vp
         self.expansion = expansion
         self.goodtype = goodtype
-        self.flags = flags
+        self.flags = "" # flags
         self.powers = powers
         self.extra_victory = extra_victory
 
