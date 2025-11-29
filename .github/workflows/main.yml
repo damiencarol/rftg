@@ -24,11 +24,4 @@ jobs:
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Unit tests with coverage
       run: |
-        DD_SECRET_KEY=455
-        DD_DATABASE_ENGINE=django.db.backends.sqlite3
-        DD_DATABASE_NAME=unittest.sqlite
-        python manage.py makemigrations dojo
-        python manage.py migrate
-        
-        coverage run --branch --source='dojo' manage.py test --no-input --keepdb --exclude-tag broken dojo.unittests
-        coverage xml
+        python -m tox -e py3
